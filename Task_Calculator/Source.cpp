@@ -30,6 +30,8 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 {
 	static TCHAR szForEdit[10];
 	static TCHAR szButton[10];
+	static TCHAR sign[1];
+	static int nCalculatedNumber = 0;
 
 	switch (uMessage)
 	{
@@ -39,6 +41,8 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 		return TRUE;
 
 	case WM_INITDIALOG:
+
+		sign[0] = 0;
 
 		hEdit = GetDlgItem(hWnd, IDC_EDIT);
 
@@ -58,11 +62,40 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 			SetWindowText(hEdit, szForEdit);
 		}
 
+		if (LOWORD(wParam) >= IDC_BUTTON_Plus && LOWORD(wParam) <= IDC_BUTTON_Cos)
+		{
+			/*if (sign != NULL)*/
+			if (sign[0] != 0)
+			{
+				MessageBeep(1);
+				switch (sign[0])
+				{
+				default:
+					break;
+				}
+			}
+			else
+			{
+				HWND hTemp;
+
+				hTemp = GetDlgItem(hWnd, LOWORD(wParam));
+				GetWindowText(hTemp, (LPWSTR)sign, 10);
+
+				//SetWindowText(hWnd, (LPWSTR)sign);
+
+				TCHAR szCalculatedNumber[10];
+				GetWindowText(hEdit, szCalculatedNumber, 10);
+				nCalculatedNumber = _wtoi(szCalculatedNumber);
+				szForEdit[0] = 0;
+			}
+		}
+
 		if (LOWORD(wParam) == IDC_BUTTON_C)
 		{
 			szForEdit[0] = 0;
 			SetWindowText(hEdit, NULL);
 		}
+
 
 		return TRUE;
 
