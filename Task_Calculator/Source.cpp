@@ -67,12 +67,27 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 			/*if (sign != NULL)*/
 			if (sign[0] != 0)
 			{
-				MessageBeep(1);
+				TCHAR szCalculatedNumber[10];
+
 				switch (sign[0])
 				{
+				case '+':
+					//MessageBeep(1);
+					// прибавляю к nCalculatedNumber += 
+					GetWindowText(hEdit, szCalculatedNumber, 10);
+					nCalculatedNumber += _wtoi(szCalculatedNumber);
+					break;
 				default:
 					break;
 				}
+
+				szForEdit[0] = 0;
+
+				// Запоминаю новый знак
+				HWND hTemp;
+
+				hTemp = GetDlgItem(hWnd, LOWORD(wParam));
+				GetWindowText(hTemp, (LPWSTR)sign, 10);
 			}
 			else
 			{
