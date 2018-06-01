@@ -77,7 +77,24 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 					GetWindowText(hEdit, szCalculatedNumber, 10);
 					nCalculatedNumber += _wtoi(szCalculatedNumber);
 					break;
+				case '-':
+
+					break;
+				case '*':
+
+					break;
+				case '/':
+
+					break;
+				case 's':
+
+					break;
+				case 'c':
+
+					break;
 				default:
+					MessageBeep(1);
+					MessageBeep(1);
 					break;
 				}
 
@@ -109,6 +126,45 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 		{
 			szForEdit[0] = 0;
 			SetWindowText(hEdit, NULL);
+			nCalculatedNumber = 0;
+		}
+
+		if (LOWORD(wParam) == IDC_BUTTON_Equally)
+		{
+			TCHAR szCalculatedNumber[10];
+
+			switch (sign[0])
+			{
+			case '+':
+				//MessageBeep(1);
+				// прибавл€ю к nCalculatedNumber += 
+				GetWindowText(hEdit, szCalculatedNumber, 10);
+				nCalculatedNumber += _wtoi(szCalculatedNumber);
+				break;
+			case '-':
+
+				break;
+			case '*':
+
+				break;
+			case '/':
+
+				break;
+			case 's':
+
+				break;
+			case 'c':
+
+				break;
+			default:
+				MessageBeep(1);
+				MessageBeep(1);
+				break;
+			}
+
+			// вывести в edit
+			_itow(nCalculatedNumber, szForEdit, 10);
+			SetWindowText(hEdit, szForEdit);
 		}
 
 
