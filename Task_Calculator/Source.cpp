@@ -2,7 +2,10 @@
 #include <tchar.h>
 #include "resource.h"
 #include <vector>
+#include <cmath>
 using namespace std;
+
+#define PI 3.14159265
 
 HWND hEdit;
 
@@ -62,7 +65,7 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 			SetWindowText(hEdit, szForEdit);
 		}
 
-		if (LOWORD(wParam) >= IDC_BUTTON_Plus && LOWORD(wParam) <= IDC_BUTTON_Cos)
+		if (LOWORD(wParam) >= IDC_BUTTON_Plus && LOWORD(wParam) <= IDC_BUTTON_Divide)
 		{
 			/*if (sign != NULL)*/
 			if (sign[0] != 0)
@@ -86,12 +89,6 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 				case '/':
 
 					break;
-				case 's':
-
-					break;
-				case 'c':
-
-					break;
 				default:
 					MessageBeep(1);
 					MessageBeep(1);
@@ -105,9 +102,15 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 
 				hTemp = GetDlgItem(hWnd, LOWORD(wParam));
 				GetWindowText(hTemp, (LPWSTR)sign, 10);
+
+				szForEdit[0] = 0;
+				_itow(nCalculatedNumber, szForEdit, 10);
+				SetWindowText(hEdit, szForEdit);
+				szForEdit[0] = 0;
 			}
 			else
 			{
+				// Получаем знак
 				HWND hTemp;
 
 				hTemp = GetDlgItem(hWnd, LOWORD(wParam));
@@ -115,43 +118,29 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 
 				//SetWindowText(hWnd, (LPWSTR)sign);
 
+				// Получаем число
 				TCHAR szCalculatedNumber[10];
 				GetWindowText(hEdit, szCalculatedNumber, 10);
 				nCalculatedNumber = _wtoi(szCalculatedNumber);
 				szForEdit[0] = 0;
 			}
 		}
-
-		if (LOWORD(wParam) == IDC_BUTTON_C)
-		{
-			szForEdit[0] = 0;
-			SetWindowText(hEdit, NULL);
-			nCalculatedNumber = 0;
-		}
-
-		if (LOWORD(wParam) == IDC_BUTTON_Equally)
-		{
+		else if (LOWORD(wParam) >= IDC_BUTTON_Sin && LOWORD(wParam) <= IDC_BUTTON_Cos) {
+			// TODO if 
 			TCHAR szCalculatedNumber[10];
+
+			GetWindowText(hEdit, szCalculatedNumber, 10);
+
+			if (lstrlen(szCalculatedNumber) > 0)
+			{
+				/*MessageBeep(1);*/
+			}
+			MessageBeep(1);
 
 			switch (sign[0])
 			{
-			case '+':
-				//MessageBeep(1);
-				// прибавляю к nCalculatedNumber += 
-				GetWindowText(hEdit, szCalculatedNumber, 10);
-				nCalculatedNumber += _wtoi(szCalculatedNumber);
-				break;
-			case '-':
-
-				break;
-			case '*':
-
-				break;
-			case '/':
-
-				break;
 			case 's':
-
+				nCalculatedNumber = sin(_wtoi(szCalculatedNumber) * PI / 180);
 				break;
 			case 'c':
 
@@ -165,6 +154,55 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 			// вывести в edit
 			_itow(nCalculatedNumber, szForEdit, 10);
 			SetWindowText(hEdit, szForEdit);
+		}
+
+		if (LOWORD(wParam) == IDC_BUTTON_C)
+		{
+			szForEdit[0] = 0;
+			SetWindowText(hEdit, NULL);
+			nCalculatedNumber = 0;
+		}
+
+		if (LOWORD(wParam) == IDC_BUTTON_Equally)
+		{
+			TCHAR szCalculatedNumber[10];
+
+			GetWindowText(hEdit, szCalculatedNumber, 10);
+
+			switch (sign[0])
+			{
+			case '+':
+				//MessageBeep(1);
+				// прибавляю к nCalculatedNumber += 
+				//GetWindowText(hEdit, szCalculatedNumber, 10);
+				nCalculatedNumber += _wtoi(szCalculatedNumber);
+				break;
+			case '-':
+				nCalculatedNumber -= _wtoi(szCalculatedNumber);
+				break;
+			case '*':
+				nCalculatedNumber *= _wtoi(szCalculatedNumber);
+				break;
+			case '/':
+				nCalculatedNumber /= _wtoi(szCalculatedNumber);
+				break;
+			case 's':
+				nCalculatedNumber = sin(_wtoi(szCalculatedNumber) * PI / 180);
+				break;
+			case 'c':
+
+				break;
+			default:
+				MessageBeep(1);
+				MessageBeep(1);
+				break;
+			}
+
+			// вывести в edit
+			_itow(nCalculatedNumber, szForEdit, 10);
+			SetWindowText(hEdit, szForEdit);
+
+			sign[0] = 0;
 		}
 
 
