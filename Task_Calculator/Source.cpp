@@ -11,6 +11,8 @@ HWND hEdit;
 
 BOOL CALLBACK DlgProc(HWND, UINT, WPARAM, LPARAM);
 
+void sendNumberToTheEdit(int number, TCHAR szForEdit[10]);
+
 int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR lpszCmdLine, int nCmdShow)
 {
 
@@ -34,7 +36,9 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 	static TCHAR szForEdit[10];
 	static TCHAR szButton[10];
 	static TCHAR sign[1];
-	static int nCalculatedNumber = 0;
+	static int nCalculatedNumber = 0;	// TODO double
+
+	TCHAR szCalculatedNumber[10];
 
 	switch (uMessage)
 	{
@@ -53,6 +57,7 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 
 	case WM_COMMAND:
 
+		// Если нажимаем цыфры.
 		if (LOWORD(wParam) >= IDC_BUTTON_Zero && LOWORD(wParam) <= IDC_BUTTON_9)
 		{
 			HWND hTemp;
@@ -65,29 +70,29 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 			SetWindowText(hEdit, szForEdit);
 		}
 
+		// Если + - * /
 		if (LOWORD(wParam) >= IDC_BUTTON_Plus && LOWORD(wParam) <= IDC_BUTTON_Divide)
 		{
-			/*if (sign != NULL)*/
+			// Если есть знак (был нажат).
 			if (sign[0] != 0)
 			{
-				TCHAR szCalculatedNumber[10];
+				//TCHAR szCalculatedNumber[10];
+
+				GetWindowText(hEdit, szCalculatedNumber, 10);
 
 				switch (sign[0])
 				{
 				case '+':
-					//MessageBeep(1);
-					// прибавляю к nCalculatedNumber += 
-					GetWindowText(hEdit, szCalculatedNumber, 10);
 					nCalculatedNumber += _wtoi(szCalculatedNumber);
 					break;
 				case '-':
-
+					nCalculatedNumber -= _wtoi(szCalculatedNumber);
 					break;
 				case '*':
-
+					nCalculatedNumber *= _wtoi(szCalculatedNumber);
 					break;
 				case '/':
-
+					nCalculatedNumber /= _wtoi(szCalculatedNumber);
 					break;
 				default:
 					MessageBeep(1);
@@ -104,8 +109,9 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 				GetWindowText(hTemp, (LPWSTR)sign, 10);
 
 				szForEdit[0] = 0;
-				_itow(nCalculatedNumber, szForEdit, 10);
-				SetWindowText(hEdit, szForEdit);
+				/*_itow(nCalculatedNumber, szForEdit, 10);
+				SetWindowText(hEdit, szForEdit);*/
+				sendNumberToTheEdit(nCalculatedNumber, szForEdit);
 				szForEdit[0] = 0;
 			}
 			else
@@ -116,46 +122,53 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 				hTemp = GetDlgItem(hWnd, LOWORD(wParam));
 				GetWindowText(hTemp, (LPWSTR)sign, 10);
 
-				//SetWindowText(hWnd, (LPWSTR)sign);
 
 				// Получаем число
-				TCHAR szCalculatedNumber[10];
+				//TCHAR szCalculatedNumber[10];
 				GetWindowText(hEdit, szCalculatedNumber, 10);
 				nCalculatedNumber = _wtoi(szCalculatedNumber);
 				szForEdit[0] = 0;
 			}
 		}
+		// Если выбрали sin или cos
 		else if (LOWORD(wParam) >= IDC_BUTTON_Sin && LOWORD(wParam) <= IDC_BUTTON_Cos) {
-			// TODO if 
-			TCHAR szCalculatedNumber[10];
+
+			//TCHAR szCalculatedNumber[10];
 
 			GetWindowText(hEdit, szCalculatedNumber, 10);
 
+
+			// Получаем знак
+			HWND hTemp;
+
+			hTemp = GetDlgItem(hWnd, LOWORD(wParam));
+			GetWindowText(hTemp, (LPWSTR)sign, 10);
+
+			// Если ввели число.
 			if (lstrlen(szCalculatedNumber) > 0)
 			{
-				/*MessageBeep(1);*/
+				switch (sign[0])
+				{
+				case 's':
+					nCalculatedNumber = sin(_wtoi(szCalculatedNumber) * PI / 180);
+					break;
+				case 'c':
+					nCalculatedNumber = cos(_wtoi(szCalculatedNumber) * PI / 180);
+					break;
+				default:
+					MessageBeep(1);
+					MessageBeep(1);
+					break;
+				}
+
+				// вывести в edit
+				/*_itow(nCalculatedNumber, szForEdit, 10);
+				SetWindowText(hEdit, szForEdit);*/
+				sendNumberToTheEdit(nCalculatedNumber, szForEdit);
 			}
-			MessageBeep(1);
-
-			switch (sign[0])
-			{
-			case 's':
-				nCalculatedNumber = sin(_wtoi(szCalculatedNumber) * PI / 180);
-				break;
-			case 'c':
-
-				break;
-			default:
-				MessageBeep(1);
-				MessageBeep(1);
-				break;
-			}
-
-			// вывести в edit
-			_itow(nCalculatedNumber, szForEdit, 10);
-			SetWindowText(hEdit, szForEdit);
 		}
 
+		// Если обнуляем данные.
 		if (LOWORD(wParam) == IDC_BUTTON_C)
 		{
 			szForEdit[0] = 0;
@@ -163,18 +176,16 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 			nCalculatedNumber = 0;
 		}
 
+		// Если нажимаем "=".
 		if (LOWORD(wParam) == IDC_BUTTON_Equally)
 		{
-			TCHAR szCalculatedNumber[10];
+			//TCHAR szCalculatedNumber[10];
 
 			GetWindowText(hEdit, szCalculatedNumber, 10);
 
 			switch (sign[0])
 			{
 			case '+':
-				//MessageBeep(1);
-				// прибавляю к nCalculatedNumber += 
-				//GetWindowText(hEdit, szCalculatedNumber, 10);
 				nCalculatedNumber += _wtoi(szCalculatedNumber);
 				break;
 			case '-':
@@ -186,12 +197,6 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 			case '/':
 				nCalculatedNumber /= _wtoi(szCalculatedNumber);
 				break;
-			case 's':
-				nCalculatedNumber = sin(_wtoi(szCalculatedNumber) * PI / 180);
-				break;
-			case 'c':
-
-				break;
 			default:
 				MessageBeep(1);
 				MessageBeep(1);
@@ -199,8 +204,9 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 			}
 
 			// вывести в edit
-			_itow(nCalculatedNumber, szForEdit, 10);
-			SetWindowText(hEdit, szForEdit);
+			/*_itow(nCalculatedNumber, szForEdit, 10);
+			SetWindowText(hEdit, szForEdit);*/
+			sendNumberToTheEdit(nCalculatedNumber, szForEdit);
 
 			sign[0] = 0;
 		}
@@ -210,4 +216,9 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 
 	}
 	return FALSE;
+}
+
+void sendNumberToTheEdit(int number, TCHAR szForEdit[10]) {
+	_itow(number, szForEdit, 10);
+	SetWindowText(hEdit, szForEdit);
 }
