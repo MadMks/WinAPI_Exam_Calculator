@@ -3,6 +3,7 @@
 #include "resource.h"
 #include <vector>
 #include <cmath>
+#include <math.h>
 using namespace std;
 
 #define PI 3.14159265
@@ -11,7 +12,8 @@ HWND hEdit;
 
 BOOL CALLBACK DlgProc(HWND, UINT, WPARAM, LPARAM);
 
-void sendNumberToTheEdit(int number, TCHAR szForEdit[10]);
+void sendNumberToTheEditInt(int number, TCHAR szForEdit[10]);
+void sendNumberToTheEditFloat(float number, TCHAR szForEdit[10]);
 
 int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR lpszCmdLine, int nCmdShow)
 {
@@ -36,7 +38,7 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 	static TCHAR szForEdit[10];
 	static TCHAR szButton[10];
 	static TCHAR sign[1];
-	static int nCalculatedNumber = 0;	// TODO double
+	static float nCalculatedNumber = 0;
 
 	TCHAR szCalculatedNumber[10];
 
@@ -76,8 +78,6 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 			// Если есть знак (был нажат).
 			if (sign[0] != 0)
 			{
-				//TCHAR szCalculatedNumber[10];
-
 				GetWindowText(hEdit, szCalculatedNumber, 10);
 
 				switch (sign[0])
@@ -92,7 +92,15 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 					nCalculatedNumber *= _wtoi(szCalculatedNumber);
 					break;
 				case '/':
-					nCalculatedNumber /= _wtoi(szCalculatedNumber);
+					if (_wtoi(szCalculatedNumber) != 0)
+					{
+						nCalculatedNumber /= _wtoi(szCalculatedNumber);
+					}
+					else
+					{
+						// Деление на ноль не возможно.
+						nCalculatedNumber = 0;
+					}
 					break;
 				default:
 					MessageBeep(1);
@@ -109,9 +117,16 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 				GetWindowText(hTemp, (LPWSTR)sign, 10);
 
 				szForEdit[0] = 0;
-				/*_itow(nCalculatedNumber, szForEdit, 10);
-				SetWindowText(hEdit, szForEdit);*/
-				sendNumberToTheEdit(nCalculatedNumber, szForEdit);
+
+				if (sign[0] == '/')
+				{
+					sendNumberToTheEditFloat(nCalculatedNumber, szForEdit);
+				}
+				else
+				{
+					sendNumberToTheEditInt(nCalculatedNumber, szForEdit);
+				}
+
 				szForEdit[0] = 0;
 			}
 			else
@@ -124,7 +139,6 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 
 
 				// Получаем число
-				//TCHAR szCalculatedNumber[10];
 				GetWindowText(hEdit, szCalculatedNumber, 10);
 				nCalculatedNumber = _wtoi(szCalculatedNumber);
 				szForEdit[0] = 0;
@@ -133,10 +147,7 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 		// Если выбрали sin или cos
 		else if (LOWORD(wParam) >= IDC_BUTTON_Sin && LOWORD(wParam) <= IDC_BUTTON_Cos) {
 
-			//TCHAR szCalculatedNumber[10];
-
 			GetWindowText(hEdit, szCalculatedNumber, 10);
-
 
 			// Получаем знак
 			HWND hTemp;
@@ -161,10 +172,8 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 					break;
 				}
 
-				// вывести в edit
-				/*_itow(nCalculatedNumber, szForEdit, 10);
-				SetWindowText(hEdit, szForEdit);*/
-				sendNumberToTheEdit(nCalculatedNumber, szForEdit);
+				// Вывести в Edit.
+				sendNumberToTheEditFloat(nCalculatedNumber, szForEdit);
 			}
 		}
 
@@ -179,8 +188,6 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 		// Если нажимаем "=".
 		if (LOWORD(wParam) == IDC_BUTTON_Equally)
 		{
-			//TCHAR szCalculatedNumber[10];
-
 			GetWindowText(hEdit, szCalculatedNumber, 10);
 
 			switch (sign[0])
@@ -195,18 +202,29 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 				nCalculatedNumber *= _wtoi(szCalculatedNumber);
 				break;
 			case '/':
-				nCalculatedNumber /= _wtoi(szCalculatedNumber);
+				if (_wtoi(szCalculatedNumber) != 0)
+				{
+					nCalculatedNumber /= _wtoi(szCalculatedNumber);
+				}
+				else
+				{
+					// Деление на ноль не возможно.
+					nCalculatedNumber = 0;
+				}
 				break;
 			default:
-				MessageBeep(1);
-				MessageBeep(1);
 				break;
 			}
 
-			// вывести в edit
-			/*_itow(nCalculatedNumber, szForEdit, 10);
-			SetWindowText(hEdit, szForEdit);*/
-			sendNumberToTheEdit(nCalculatedNumber, szForEdit);
+			// Вывести в Edit.
+			if (sign[0] == '/')
+			{
+				sendNumberToTheEditFloat(nCalculatedNumber, szForEdit);
+			}
+			else
+			{
+				sendNumberToTheEditInt(nCalculatedNumber, szForEdit);
+			}
 
 			sign[0] = 0;
 		}
@@ -218,7 +236,20 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 	return FALSE;
 }
 
-void sendNumberToTheEdit(int number, TCHAR szForEdit[10]) {
+
+void sendNumberToTheEditInt(int number, TCHAR szForEdit[10]) {
+
 	_itow(number, szForEdit, 10);
+	SetWindowText(hEdit, szForEdit);
+}
+
+void sendNumberToTheEditFloat(float number, TCHAR szForEdit[10]) {
+
+	_itow(number, szForEdit, 10);
+	lstrcat(szForEdit, L".");
+	int i = (number - (int)number) * 10;
+	TCHAR szTwo[2];
+	_itow(i, szTwo, 10);
+	lstrcat(szForEdit, szTwo);
 	SetWindowText(hEdit, szForEdit);
 }
